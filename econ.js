@@ -67,8 +67,7 @@ client.on('message', async message => {
 		case "showbal": 
 		case "bal": 
 			balance.updateBalList()
-			reply = balance.getCurBalance(message.author.id)
-			message.reply(`you have ` + reply + `.`)
+			balance.getCurBalance(message)
 			break;
 		
 		case "daily":
@@ -83,9 +82,11 @@ client.on('message', async message => {
 			balance.rmMoney(message.author.id, amount)
 			message.reply (` removed ` + amount + ` from the account`)
 			break;
-		
-			
-    }
+
+		case "newaccount":
+			balance.newAccount(message);
+			break;
+	}
 });
 
 client.login(auth.token);
