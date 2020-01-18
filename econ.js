@@ -67,19 +67,19 @@ client.on('message', async message => {
 		case "showbal": 
 		case "bal": 
 			balance.updateBalList()
-			balance.getCurBalance(message)
+			message.reply(`you have ` + balance.getCurBalance(message) + `.`);
 			break;
 		
 		case "daily":
 			var timeout = 86400000 // 24 hours in milliseconds, change if you'd like.
 			var amount = 100
-			balance.updateMoney(message.author.id, amount)
+			balance.updateMoney(message, amount)
 			message.reply(` added ` + amount + ` to the account`)
 			break;
 		
 		case "delete":
 			var amount = Number(words[1])
-			balance.rmMoney(message.author.id, amount)
+			balance.rmMoney(message, amount)
 			message.reply (` removed ` + amount + ` from the account`)
 			break;
 

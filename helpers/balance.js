@@ -41,45 +41,37 @@ module.exports = {
 		}
 	},
 
+	ensureUser: function (message) {
+		if (!people[message.author.id]) {
+			message.reply("Please create a new account by typing `^newaccount`");
+			return false;
+		}
+	
+		return true;
+	},
+
 	getCurBalance: function (message) {
-		const userID = message.author.id
-		sortedList = [];
-
-		for (name in people) {
-			sortedList[sortedList.length] = name;
-		}
-
-		sortedList.sort();
-
-		userIndex = sortedList.indexOf(userID);
-		username = sortedList[userIndex];
-
-		out = people[sortedList[userIndex]];
-
-		if (!(sortedList.includes(message.author.id))) {
-			message.channel.send("You don't have an account yet. Let's create one!");
-			this.newAccount(message);
-			return;
-		}
-		else {
-			message.reply(`you have ` + out + `.`);
-		}
+		if (!this.ensureUser(message)) { return; }
+		return people[message.author.id];
 	},
 
 	add: function(userID, newbalance) {
 		add_in(userID, newbalance);
 	},
 
-	updateMoney: function(userID, amount) {
-		this.getCurBalance(userID)
-		newbalance = Number(out) + amount
-		this.add(userID, newbalance)
+	updateMoney: function(message, amount) {
+		this.updateBalList()
+		if (!this.ensureUser(message)) { return; }
+		userID = message.author.id;
+		newbalance = Number(this.getCurBalance(message)) + amount
+		this.add(userID, newbalance);
 		return "Successfully updated balance";
 	},
 
-	rmMoney: function(userID, amount) {
-		this.getCurBalance(userID)
-		newbalance = Number(out) - amount
+	rmMoney: function(message, amount) {
+		this.updateBalList()
+		userID = message.author.id;
+		newbalance = Number(this.getCurBalance(message)) - amount
 		this.add(userID, newbalance)
 		return "Successfully updated balance";
 	},
@@ -93,10 +85,16 @@ module.exports = {
 	 *  -> Needs a copy of userID from that message
 	 *  -> Run this ID through the filter
 	 *
-	 * Do stuff
+	 * Create a new account with 1000 (currency)
 	 */
 	newAccount: function(message) {
-		const userID = message.author.id;
+		this.updateBalList()
+		if (this.ensureUser(message)) {
+			message.channel.send("You already have an account.");
+			return;
+		}
+
+		userID = message.author.id;
 		const time = 60000; //amount of time to collect for in milliseconds
 
 		message.channel.send("React to the checkmark below to create a new account.")
