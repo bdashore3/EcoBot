@@ -42,6 +42,7 @@ module.exports = {
 	},
 
 	ensureUser: function (message) {
+		this.updateBalList()
 		if (!people[message.author.id]) {
 			message.reply("Please create a new account by typing `^newaccount`");
 			return false;
@@ -60,7 +61,6 @@ module.exports = {
 	},
 
 	updateMoney: function(message, amount) {
-		this.updateBalList()
 		if (!this.ensureUser(message)) { return; }
 		userID = message.author.id;
 		newbalance = Number(this.getCurBalance(message)) + amount
@@ -69,7 +69,6 @@ module.exports = {
 	},
 
 	rmMoney: function(message, amount) {
-		this.updateBalList()
 		userID = message.author.id;
 		newbalance = Number(this.getCurBalance(message)) - amount
 		this.add(userID, newbalance)
@@ -88,7 +87,6 @@ module.exports = {
 	 * Create a new account with 1000 (currency)
 	 */
 	newAccount: function(message) {
-		this.updateBalList()
 		if (this.ensureUser(message)) {
 			message.channel.send("You already have an account.");
 			return;

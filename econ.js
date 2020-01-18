@@ -66,7 +66,6 @@ client.on('message', async message => {
 		
 		case "showbal": 
 		case "bal": 
-			balance.updateBalList()
 			message.reply(`you have ` + balance.getCurBalance(message) + `.`);
 			break;
 		
