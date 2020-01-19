@@ -11,7 +11,7 @@ const jsonPath = "./JSON/";
 
 var people = {};
 
-function stringify() {
+function stringify_balance() {
 	out = "{\n\t\"people\" : [";
 	isInit = true;
 	for (name in people) {
@@ -26,9 +26,9 @@ function stringify() {
 	return out;
 }
 
-function add_in(userID, newbalance) {
+function addMoneyInternal(userID, newbalance) {
 	people[userID] = newbalance;
-	fs.writeFileSync(jsonPath + 'balance.json', stringify());
+	fs.writeFileSync(jsonPath + 'balance.json', stringify_balance());
 	return "Balance successfully written";
 }
 
@@ -56,22 +56,22 @@ module.exports = {
 		return people[message.author.id];
 	},
 
-	add: function(userID, newbalance) {
-		add_in(userID, newbalance);
+	addMoney: function(userID, newbalance) {
+		addMoneyInternal(userID, newbalance);
 	},
 
 	updateMoney: function(message, amount) {
 		if (!this.ensureUser(message)) { return; }
 		userID = message.author.id;
 		newbalance = Number(this.getCurBalance(message)) + amount
-		this.add(userID, newbalance);
+		this.addMoney(userID, newbalance);
 		return "Successfully updated balance";
 	},
 
 	rmMoney: function(message, amount) {
 		userID = message.author.id;
 		newbalance = Number(this.getCurBalance(message)) - amount
-		this.add(userID, newbalance)
+		this.addMoney(userID, newbalance)
 		return "Successfully updated balance";
 	},
 

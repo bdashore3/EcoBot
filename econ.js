@@ -56,7 +56,7 @@ client.on('message', async message => {
         case "addmoney":
             if (isAdmin(message.author.id)) {
                 var addBalance = Number(words[1])
-                balance.add(message.author.id, addBalance)
+                balance.addMoney(message.author.id, addBalance)
                 message.reply(` added ` + addBalance + ` to the account`)
             }
             else {
