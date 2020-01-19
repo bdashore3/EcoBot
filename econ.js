@@ -13,6 +13,8 @@ const client = new Discord.Client();
 const alphaNum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 var isBreak = false;
 
+const currency = "RegalCoins";
+
 function isAdmin(userID) {
 	return (isDev(userID));
 }
@@ -65,13 +67,13 @@ client.on('message', async message => {
 			}
 			var addBalance = Number(words[1])
 			balance.updateMoney(message, addBalance)
-			message.reply(` added ` + addBalance + ` to the account`)
+			message.channel.send(` added ` + addBalance + " " + currency + ` to the account`)
 			break;
 		
 		case "showbal": 
 		case "bal": 
 			if (balance.getCurBalance(message) === undefined) { break; }
-			message.reply(`you have ` + balance.getCurBalance(message) + `.`);
+			message.reply(`you have ` + balance.getCurBalance(message) + " " + currency + `.`);
 			break;
 		
 		case "daily":
@@ -86,7 +88,7 @@ client.on('message', async message => {
 			}
 			var amount = Number(words[1])
 			balance.rmMoney(message, amount)
-			message.reply (` removed ` + amount + ` from the account`)
+			message.reply (` removed ` + amount + currency + " " + ` from your account`)
 			break;
 
 		case "newaccount":

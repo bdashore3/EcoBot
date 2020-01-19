@@ -8,12 +8,13 @@
 const fs = require('fs');
 
 const jsonPath = "./JSON/";
+const now = new Date();
 
 var people = {};
 
 var times = {};
 
-const now = new Date();
+const currency = "RegalCoins";
 
 function stringify_balance() {
 	out = "{\n\t\"people\" : [";
@@ -145,7 +146,7 @@ module.exports = {
 		if ((curTime - curDailyTime) >= twentyFourTimeDiff) {
 			this.updateMoney(message, 100);
 			this.addTime(message.author.id, curTime);
-			out = "Here's your daily amount of 100!"
+			out = "Here's your daily amount of 100" + " " + currency + "!"
 		}
 
 		return out;
