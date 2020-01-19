@@ -35,7 +35,12 @@ This command allows the json file to be initialized to prevent errors. An init c
 Currently, this bot is for personal used and **CANNOT** be used without permission from the developers.
 
 Creator: Brian Dashore
+
+
 Developers: Brian Dashore and Tanish Manku
+
+
 Developer Discord Names: kingbri#1588, quantumcry#4820
+
 
 Join the main server here: [https://discord.gg/pswt7by](https://discord.gg/pswt7by)
