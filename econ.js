@@ -15,10 +15,15 @@ var isBreak = false;
 
 const currency = "RegalCoins";
 
+/* 
+ * Add your ID in the return statement using an OR operator
+ * e.g: return(isDev(userID) || userID == *your ID variable in id.json*)
+ */
 function isAdmin(userID) {
 	return (isDev(userID));
 }
 
+// Do NOT edit this.
 function isDev(userID) {
 	return (userID == quantumID || userID == briID);
 }
@@ -64,6 +69,13 @@ client.on('message', async message => {
 	command = words[0].toLowerCase();
 
 	switch (command) {
+
+		/*
+		 * Directly adds money to the user's account
+		 * For bot admins only
+		 * Meant for debugging purposes ONLY!
+		 * Don't be a scumbag and give yourself infinite money.
+		 */
 		case "addmoney":
 			if (!isAdmin(message.author.id)) { 
 				message.channel.send(`Sorry, only bot admins can do this`)
@@ -74,17 +86,31 @@ client.on('message', async message => {
 			message.channel.send(` added ` + addBalance + " " + currency + ` to the account`)
 			break;
 		
+		/*
+		 * Shows the user's balance
+		 * Check balance.js for more information about the internals.
+		 */
 		case "showbal": 
 		case "bal": 
 			if (balance.getCurBalance(message) === undefined) { break; }
 			message.reply(`you have ` + balance.getCurBalance(message) + " " + currency + `.`);
 			break;
-		
+
+		/*
+		 * Gives the user a daily sum of money
+		 * Check balance.js for more information about the internals.
+		 */
 		case "daily":
 			balance.dailyTimeCheck(message, currency)
 			message.reply(out);
 			break;
 		
+		/*
+		 * Removes money from the user's account
+		 * For bot admins only
+		 * Meant for debugging purposes only!
+		 * Why would you remove money from your own account?
+		 */
 		case "delete":
 			if (!isAdmin(message.author.id)) { 
 				message.channel.send(`Sorry, only bot admins can do this`)
@@ -95,6 +121,11 @@ client.on('message', async message => {
 			message.reply (` removed ` + amount + currency + " " + ` from your account`)
 			break;
 
+		/*
+		 * Allows the user to make a new account
+		 * User has to make a new account before doing anything else
+		 * Check balance.js for more information about the internals.
+		 */
 		case "newaccount":
 			balance.newAccount(message);
 			break;
