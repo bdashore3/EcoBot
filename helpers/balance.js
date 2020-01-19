@@ -11,6 +11,10 @@ const jsonPath = "./JSON/";
 
 var people = {};
 
+var times = {};
+
+const now = new Date();
+
 function stringify_balance() {
 	out = "{\n\t\"people\" : [";
 	isInit = true;
@@ -26,18 +30,64 @@ function stringify_balance() {
 	return out;
 }
 
+function stringify_time() {
+	out = "{\n\t\"times\" : [";
+	isInit = true;
+	for (name in times) {
+		if (!isInit)
+			out += ",";
+
+		out += "\n\t\t{\n\t\t\t\"name\" : \"" + name + "\",";
+		out += "\n\t\t\t\"dailyTime\" : \"" + times[name] + "\"\n\t\t}"
+		isInit = false;
+	}
+	out += "\n\t]\n}";
+	return out;
+}
+
 function addMoneyInternal(userID, newbalance) {
 	people[userID] = newbalance;
+	backup();
 	fs.writeFileSync(jsonPath + 'balance.json', stringify_balance());
 	return "Balance successfully written";
 }
 
+function addTimeInternal(userID, dailyTime) {
+	times[userID] = dailyTime;
+	backup();
+	fs.writeFileSync(jsonPath + 'dailyTime.json', stringify_time());
+	return "Daily Time Written";
+}
+
+function backup() {
+	fs.copyFileSync(jsonPath + 'balance.json', jsonPath + 'balance.json.bk', (err) => {
+		if (err) throw err;
+		console.log('Backed up Balances!');
+	});
+	fs.copyFileSync(jsonPath + 'dailyTime.json', jsonPath + 'dailyTime.json.bk', (err) => {
+		if (err) throw err;
+		console.log('Backed up Daily Times!');
+	});
+}
+
 module.exports = {
+	backupAll: function() {
+		backup();
+	},
+
 	updateBalList: function() {
 		balanceList = JSON.parse(fs.readFileSync(jsonPath + 'balance.json'));
 		for (var i = 0; i < balanceList.people.length; ++i) {
 			curBalance = balanceList.people[i];
 			people[curBalance.name] = curBalance.balance;
+		}
+	},
+
+	updateTimeList: function() {
+		dailyTimeList = JSON.parse(fs.readFileSync(jsonPath + 'dailyTime.json'));
+		for (var i = 0; i < dailyTimeList.times.length; ++i) {
+			curDailyTime = dailyTimeList.times[i];
+			times[curDailyTime.name] = curDailyTime.dailyTime;
 		}
 	},
 
@@ -47,7 +97,6 @@ module.exports = {
 			message.reply("Please create a new account by typing `^newaccount`");
 			return false;
 		}
-	
 		return true;
 	},
 
@@ -56,8 +105,17 @@ module.exports = {
 		return people[message.author.id];
 	},
 
+	getCurDailyTime: function (message) {
+		if (!this.ensureUser(message)) { return; }
+		return times[message.author.id];
+	},
+
 	addMoney: function(userID, newbalance) {
 		addMoneyInternal(userID, newbalance);
+	},
+
+	addTime: function(userID, dailyTime) {
+		addTimeInternal(userID, dailyTime);
 	},
 
 	updateMoney: function(message, amount) {
@@ -69,12 +127,29 @@ module.exports = {
 	},
 
 	rmMoney: function(message, amount) {
-		userID = message.author.id;
 		newbalance = Number(this.getCurBalance(message)) - amount
-		this.addMoney(userID, newbalance)
+		this.addMoney(message.author.id, newbalance)
 		return "Successfully updated balance";
 	},
 
+	dailyTimeCheck: function(message) {
+		if (!this.ensureUser(message)) { return; }
+		this.updateTimeList();
+		curTime = now.getTime();
+		curDailyTime = Number(this.getCurDailyTime(message));
+		twentyFourTimeDiff = (curDailyTime + 86400000) - curDailyTime;
+		
+		if (!((curTime - curDailyTime) >= twentyFourTimeDiff)) {
+			out = "It hasn't been twenty four hours! Come back another time."
+		}
+		if ((curTime - curDailyTime) >= twentyFourTimeDiff) {
+			this.updateMoney(message, 100);
+			this.addTime(message.author.id, curTime);
+			out = "Here's your daily amount of 100!"
+		}
+
+		return out;
+	},
 
 	/* Function flow:
 	 * Send a message
@@ -87,8 +162,8 @@ module.exports = {
 	 * Create a new account with 1000 (currency)
 	 */
 	newAccount: function(message) {
-		if (this.ensureUser(message)) {
-			message.channel.send("You already have an account.");
+		if (people[message.author.id]) {
+			message.channel.send("You already have an account.");			
 			return;
 		}
 
@@ -105,7 +180,9 @@ module.exports = {
 			 const collector = message.createReactionCollector(filter, { time: time });
 
 			 collector.on('collect', (reaction, reactionCollector) => {
-				add_in(userID, 1000)
+				addMoneyInternal(userID, 1000)
+				dailyTime = now.getTime();
+				addTimeInternal(userID, dailyTime)
 			 });
 		});
 	}

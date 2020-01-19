@@ -21,6 +21,11 @@ function isDev(userID) {
 	return (userID == quantumID || userID == briID);
 }
 
+client.once('ready', () => {
+	balance.backupAll();
+	console.log('Logged in and ready to work!')
+});
+
 client.on('message', async message => {
 
 	// Don't respond to messages authored by the bot itself
@@ -38,7 +43,7 @@ client.on('message', async message => {
 	if (message.author.bot && !settings.get("iba"))
 		return;
 
-    /*
+	/*
 	 * 1) Strip the ^ prefix from the message
 	 * 2) Clean extra whitespaces
 	 * 3) Break words at whitespaces
@@ -49,34 +54,36 @@ client.on('message', async message => {
 			.substr(1, message.content.length)
 			.replace(/\s+/g, " ")
 			.split(' ');
-    
-    command = words[0].toLowerCase();
+	
+	command = words[0].toLowerCase();
 
-    switch (command) {
-        case "addmoney":
-            if (isAdmin(message.author.id)) {
-                var addBalance = Number(words[1])
-                balance.addMoney(message.author.id, addBalance)
-                message.reply(` added ` + addBalance + ` to the account`)
-            }
-            else {
+	switch (command) {
+		case "addmoney":
+			if (!isAdmin(message.author.id)) { 
 				message.channel.send(`Sorry, only bot admins can do this`)
+				break;
 			}
+			var addBalance = Number(words[1])
+			balance.updateMoney(message, addBalance)
+			message.reply(` added ` + addBalance + ` to the account`)
 			break;
 		
 		case "showbal": 
 		case "bal": 
+			if (balance.getCurBalance(message) === undefined) { break; }
 			message.reply(`you have ` + balance.getCurBalance(message) + `.`);
 			break;
 		
 		case "daily":
-			var timeout = 86400000 // 24 hours in milliseconds, change if you'd like.
-			var amount = 100
-			balance.updateMoney(message, amount)
-			message.reply(` added ` + amount + ` to the account`)
+			balance.dailyTimeCheck(message)
+			message.reply(out);
 			break;
 		
 		case "delete":
+			if (!isAdmin(message.author.id)) { 
+				message.channel.send(`Sorry, only bot admins can do this`)
+				break;
+			}
 			var amount = Number(words[1])
 			balance.rmMoney(message, amount)
 			message.reply (` removed ` + amount + ` from the account`)

@@ -1,6 +1,4 @@
-JSON/id.json
 package-lock.json
-JSON/auth.json
-JSON/balance.json
+JSON/*
 
 node_modules/
