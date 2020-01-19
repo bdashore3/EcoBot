@@ -23,6 +23,10 @@ function isDev(userID) {
 	return (userID == quantumID || userID == briID);
 }
 
+/* 
+ * Backup all JSON files if they exist.
+ * If they do not, create a JSON directory and copy all files from the samples directory to there
+ */
 client.once('ready', () => {
 	balance.backupAll();
 	console.log('Logged in and ready to work!')
@@ -77,7 +81,7 @@ client.on('message', async message => {
 			break;
 		
 		case "daily":
-			balance.dailyTimeCheck(message)
+			balance.dailyTimeCheck(message, currency)
 			message.reply(out);
 			break;
 		

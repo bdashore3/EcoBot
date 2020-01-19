@@ -14,8 +14,6 @@ var people = {};
 
 var times = {};
 
-const currency = "RegalCoins";
-
 function stringify_balance() {
 	out = "{\n\t\"people\" : [";
 	isInit = true;
@@ -133,7 +131,7 @@ module.exports = {
 		return "Successfully updated balance";
 	},
 
-	dailyTimeCheck: function(message) {
+	dailyTimeCheck: function(message, currency) {
 		if (!this.ensureUser(message)) { return; }
 		this.updateTimeList();
 		curTime = now.getTime();
@@ -152,7 +150,7 @@ module.exports = {
 		return out;
 	},
 
-	/* Function flow:
+	/* Create a new account:
 	 * Send a message
 	 * Add a reaction to it
 	 * Wait for user reactions
@@ -184,6 +182,7 @@ module.exports = {
 				addMoneyInternal(userID, 1000)
 				dailyTime = now.getTime();
 				addTimeInternal(userID, dailyTime)
+				message.reply("your new account has been created")
 			 });
 		});
 	}
