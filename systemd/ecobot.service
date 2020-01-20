@@ -11,8 +11,8 @@ RestartSec=10
 # Execution parameters
 User=ecobot
 Group=ecobot
-WorkingDirectory=/home/textbender/EcoBot
-ExecStart=/usr/bin/node /home/textbender/EcoBot/econ.js
+WorkingDirectory=/home/ecobot/EcoBot
+ExecStart=/usr/bin/node /home/ecobot/EcoBot/econ.js
 
 # Limit damage in case something goes awry
 MemoryLimit=256M
