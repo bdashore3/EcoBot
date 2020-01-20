@@ -227,7 +227,7 @@ module.exports = {
 				addMoneyInternal(userID, 1000)
 				dailyTime = now.getTime();
 				addTimeInternal(userID, dailyTime)
-				message.reply("your new account has been created")
+				message.channel.send("<@" + userID + ">, your new account has been created")
 			 });
 		});
 	}
