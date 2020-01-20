@@ -1,6 +1,9 @@
 # EcoBot
 This is an opensource Discord economy bot. However, this saves you many headaches because it does not use quick-db or any databases at all! This bot stores all persistent data in **json** files, so you don't have to worry about knowing **sql**!
 
+# Invitation
+Here's a sample link: https://discordapp.com/oauth2/authorize?client_id=**Your Client ID**&scope=bot&permissions=265280
+
 ## Preperation
 Follow [this tutorial](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot) to set up a discord bot user.
 
