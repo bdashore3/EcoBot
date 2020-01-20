@@ -55,6 +55,11 @@ client.on('message', async message => {
 	if (message.author.bot && !settings.get("iba"))
 		return;
 
+	// Only respond to the prefix with something after the message
+	if (!message.content.startsWith(prefix) && message.content.length > 1) {
+		return;
+	}
+
 	/*
 	 * 1) Strip the ^ prefix from the message
 	 * 2) Clean extra whitespaces
