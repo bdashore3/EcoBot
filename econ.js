@@ -12,6 +12,7 @@ const prefix = '^';
 const client = new Discord.Client();
 const alphaNum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 var isBreak = false;
+var production = true;
 
 const currency = "RegalCoins";
 
@@ -77,6 +78,10 @@ client.on('message', async message => {
 		 * Don't be a scumbag and give yourself infinite money.
 		 */
 		case "addmoney":
+			if (production) { 
+				message.channel.send("This is a production build! You can't use this command!")
+				break;
+			}
 			if (!isAdmin(message.author.id)) { 
 				message.channel.send(`Sorry, only bot admins can do this`)
 				break;
@@ -112,6 +117,10 @@ client.on('message', async message => {
 		 * Why would you remove money from your own account?
 		 */
 		case "delete":
+			if (production) { 
+				message.channel.send("This is a production build! You can't use this command!")
+				break;
+			}
 			if (!isAdmin(message.author.id)) { 
 				message.channel.send(`Sorry, only bot admins can do this`)
 				break;
