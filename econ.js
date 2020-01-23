@@ -12,7 +12,7 @@ const prefix = '^';
 const client = new Discord.Client();
 const alphaNum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 var isBreak = false;
-var production = true;
+var production = false;
 
 const currency = "RegalCoins";
 
@@ -34,7 +34,8 @@ function isDev(userID) {
  * If they do not, create a JSON directory and copy all files from the samples directory to there
  */
 client.once('ready', () => {
-	balance.backupAll();
+	balance.backup();
+	balance.updateAccountList();
 	console.log('Logged in and ready to work!')
 });
 
@@ -112,6 +113,7 @@ client.on('message', async message => {
 		 */
 		case "daily":
 			balance.dailyTimeCheck(message, currency)
+			if (typeof out === 'undefined') { break; }
 			message.reply(out);
 			break;
 		
@@ -132,7 +134,7 @@ client.on('message', async message => {
 			}
 			var amount = Number(words[1])
 			balance.rmMoney(message, amount)
-			message.reply (` removed ` + amount + currency + " " + ` from your account`)
+			message.reply (` removed ` + amount + " " + currency + ` from your account`)
 			break;
 
 		/*
@@ -142,6 +144,11 @@ client.on('message', async message => {
 		 */
 		case "newaccount":
 			balance.newAccount(message);
+			break;
+		
+		case "forcebackup":
+			balance.backup();
+			message.channel.send(`All accounts are backed up!`)
 			break;
 	}
 });

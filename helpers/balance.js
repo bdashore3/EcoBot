@@ -7,160 +7,84 @@
 const fs = require('fs');
 
 const jsonPath = "./JSON/";
+const backupPath = "./backups/"
 const now = new Date();
 
-var people = {};
-
-var times = {};
-
-/*
- * Custom stringify function made by tanish2k09 to handle arrays
- * Takes values stored in the objects "People" and "Times"
- * and converts them to a string for the json file.
- */
-function stringify_balance() {
-	out = "{\n\t\"people\" : [";
-	isInit = true;
-	for (name in people) {
-		if (!isInit)
-			out += ",";
-
-		out += "\n\t\t{\n\t\t\t\"name\" : \"" + name + "\",";
-		out += "\n\t\t\t\"balance\" : \"" + people[name] + "\"\n\t\t}"
-		isInit = false;
-	}
-	out += "\n\t]\n}";
-	return out;
-}
-
-function stringify_time() {
-	out = "{\n\t\"times\" : [";
-	isInit = true;
-	for (name in times) {
-		if (!isInit)
-			out += ",";
-
-		out += "\n\t\t{\n\t\t\t\"name\" : \"" + name + "\",";
-		out += "\n\t\t\t\"dailyTime\" : \"" + times[name] + "\"\n\t\t}"
-		isInit = false;
-	}
-	out += "\n\t]\n}";
-	return out;
-}
+//Object for storing account data
+var accounts = {};
 
 /* 
- * Function for adding money and time.
- * DO NOT USE balance.addMoney
- * This will overwrite the json files and remove all accounts
- * Please use the update money function to add any more money
- * or bot admins can use the addmoney command.
+ * Simple function for writing so that I don't have to keep entering the same command
  */
-function addMoneyInternal(userID, newbalance) {
-	people[userID] = newbalance;
-	backup();
-	fs.writeFileSync(jsonPath + 'balance.json', stringify_balance());
+function write() {
+	fs.writeFileSync(jsonPath + 'accounts.json', JSON.stringify(accounts, null, 4));
 	return "Balance successfully written";
 }
 
-function addTimeInternal(userID, dailyTime) {
-	times[userID] = dailyTime;
-	backup();
-	fs.writeFileSync(jsonPath + 'dailyTime.json', stringify_time());
-	return "Daily Time Written";
-}
-
-/*
- * Backup all JSON files
- * Run every time the bot is started
- * If there are no JSON files, the bot will throw an error!
- */
-
-function backup() {
-	fs.copyFileSync(jsonPath + 'balance.json', jsonPath + 'balance.json.bk', (err) => {
-		if (err) throw err;
-		console.log('Backed up Balances!');
-	});
-	fs.copyFileSync(jsonPath + 'dailyTime.json', jsonPath + 'dailyTime.json.bk', (err) => {
-		if (err) throw err;
-		console.log('Backed up Daily Times!');
-	});
-}
-
 module.exports = {
-	// Calls backup. See comments at the backup function for more info.
-	backupAll: function() {
-		backup();
+	/*
+	 * Backup all JSON files
+ 	 * Run every time the bot is started
+	 * If there are no JSON files, the bot will throw an error!
+	 */
+	backup: function() {
+		this.updateAccountList();
+		if (!fs.existsSync(backupPath)) {
+			fs.mkdirSync(backupPath);
+		}
+		fs.copyFileSync(jsonPath + 'accounts.json', backupPath + 'accounts.json.bk')
+		console.log('Backed up Accounts!');
 	},
 
 	/*
-	 * Update the entire balance list from balance.json
-	 * Another function is used to read someone's balance
-	 * Same rules apply for daily times.
+	 * Update the entire account list from balance.json
+	 * Updated on bot init, every ensureUser call, and every backup call
 	 */
-	updateBalList: function() {
-		balanceList = JSON.parse(fs.readFileSync(jsonPath + 'balance.json'));
-		for (var i = 0; i < balanceList.people.length; ++i) {
-			curBalance = balanceList.people[i];
-			people[curBalance.name] = curBalance.balance;
-		}
-	},
-
-	updateTimeList: function() {
-		dailyTimeList = JSON.parse(fs.readFileSync(jsonPath + 'dailyTime.json'));
-		for (var i = 0; i < dailyTimeList.times.length; ++i) {
-			curDailyTime = dailyTimeList.times[i];
-			times[curDailyTime.name] = curDailyTime.dailyTime;
-		}
+	updateAccountList: function() {
+		accounts = JSON.parse(fs.readFileSync(jsonPath + 'accounts.json'));
+		return accounts
 	},
 
 	/*
 	 * Make sure the user is in the balance.json file
 	 * If not, ask the user to create a new account
 	 * and return a boolean of false.
+	 * 
+	 * This function also updates the account list
+	 * since it is used in almost every other CRUD
+	 * function.
 	 */
 	ensureUser: function (message) {
-		this.updateBalList()
-		if (!people[message.author.id]) {
+		this.updateAccountList()
+		if (!accounts[message.author.id]) {
 			message.reply("Please create a new account by typing `^newaccount`");
 			return false;
 		}
 		return true;
 	},
 
-	// Function for getting an individual's balance and time.
+	// Function for getting an individual's balance (^bal command).
 	getCurBalance: function (message) {
 		if (!this.ensureUser(message)) { return; }
-		return people[message.author.id];
-	},
-
-	getCurDailyTime: function (message) {
-		if (!this.ensureUser(message)) { return; }
-		return times[message.author.id];
-	},
-
-	// Export for addMoneyInternal. Look at addMoneyInternal's comments for more info.
-	addMoney: function(userID, newbalance) {
-		addMoneyInternal(userID, newbalance);
-	},
-
-	// Export for addTimeInternal. Look at addMoneyInternal's comments for more info.
-	addTime: function(userID, dailyTime) {
-		addTimeInternal(userID, dailyTime);
+		this.updateAccountList()
+		return accounts[message.author.id].balance;
 	},
 
 	// Updates the user's balance. Must be used if you don't want the JSON to be overwriten.
 	updateMoney: function(message, amount) {
 		if (!this.ensureUser(message)) { return; }
-		userID = message.author.id;
-		newbalance = Number(this.getCurBalance(message)) + amount
-		this.addMoney(userID, newbalance);
+		newBalance = Number(this.getCurBalance(message)) + amount
+		accounts[message.author.id].balance = newBalance
+		write();
 		return "Successfully updated balance";
 	},
 
-	// Removes money from your account. Only admins can use this command.
+	// Removes money from user's account. Only admins can use this command.
 	rmMoney: function(message, amount) {
-		newbalance = Number(this.getCurBalance(message)) - amount
-		this.addMoney(message.author.id, newbalance)
+		if (!this.ensureUser(message)) { return; }
+		newBalance = Number(this.getCurBalance(message)) - amount
+		accounts[message.author.id].balance = newBalance
+		write();
 		return "Successfully updated balance";
 	},
 
@@ -174,21 +98,22 @@ module.exports = {
 	 * Otherwise, tell the user that it hasn't been twenty four hours since the last daily collection and give nothing.
 	 */
 	dailyTimeCheck: function(message, currency) {
-		if (!this.ensureUser(message)) { return; }
-		this.updateTimeList();
+		if (this.ensureUser(message) == false) { 
+			return; 
+		}
 		curTime = now.getTime();
-		curDailyTime = Number(this.getCurDailyTime(message));
-		twentyFourTimeDiff = (curDailyTime + 86400000) - curDailyTime;
+		curDailyTime = Number(accounts[message.author.id].dailyTime);;
+		twentyFourTime = 86400000; //24 hours in milliseconds
 		
-		if (!((curTime - curDailyTime) >= twentyFourTimeDiff)) {
+		if ((curTime - curDailyTime) < twentyFourTime) {
 			out = "It hasn't been twenty four hours! Come back another time."
 		}
-		if ((curTime - curDailyTime) >= twentyFourTimeDiff) {
+		if ((curTime - curDailyTime) >= twentyFourTime) {
 			this.updateMoney(message, 100);
-			this.addTime(message.author.id, curTime);
+			accounts[message.author.id].dailyTime = curTime;
+			write();
 			out = "Here's your daily amount of 100" + " " + currency + "!"
 		}
-
 		return out;
 	},
 
@@ -206,12 +131,13 @@ module.exports = {
 	 * account creation.
 	 */
 	newAccount: function(message) {
-		if (people[message.author.id]) {
+		this.updateAccountList();
+		if (accounts[message.author.id]) {
 			message.channel.send("You already have an account.");			
 			return;
 		}
 
-		userID = message.author.id;
+		userID = message.author.id
 		const time = 60000; //amount of time to collect for in milliseconds
 
 		message.channel.send("React to the checkmark below to create a new account.")
@@ -224,9 +150,12 @@ module.exports = {
 			 const collector = message.createReactionCollector(filter, { time: time });
 
 			 collector.on('collect', (reaction, reactionCollector) => {
-				addMoneyInternal(userID, 1000)
 				dailyTime = now.getTime();
-				addTimeInternal(userID, dailyTime)
+				accounts[userID] = {
+					balance: 1000,
+					dailyTime: dailyTime
+				}
+				write();
 				message.channel.send("<@" + userID + ">, your new account has been created")
 			 });
 		});
