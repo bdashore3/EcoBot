@@ -12,7 +12,7 @@ const prefix = '^';
 const client = new Discord.Client();
 const alphaNum = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 var isBreak = false;
-var production = false;
+var production = true;
 
 const currency = "RegalCoins";
 
