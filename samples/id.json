@@ -1,4 +1,5 @@
 {
-	"self" : "*Your application's bot ID*",
+	"self" : "*Your application's client ID*",
+	** Add all other IDs here in the format below. Remove this line once you're done **
 	"Your ID variable" : "*Your ID*"
 }
