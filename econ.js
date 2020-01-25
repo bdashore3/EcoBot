@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
 const ids = require('./JSON/id.json');
 const auth = require('./JSON/auth.json');
-const balance = require(`./helpers/balance.js`)
+const balance = require('./helpers/balance.js');
+const jobs = require('./helpers/jobs.js');
 const fs = require('fs')
 const jsonPath = "./JSON/";
 
@@ -150,7 +151,26 @@ client.on('message', async message => {
 			balance.backup();
 			message.channel.send(`All accounts are backed up!`)
 			break;
-	}
+
+		/*
+		case "seteducation":
+			if (!isAdmin(message.author.id)) { 
+				message.channel.send(`Sorry, only bot admins can do this`)
+				break;
+			}
+			jobs.setEducation(words[1], words[2], words[3]);
+			message.channel.send(`Education list written and fetched!`)
+			break;
+
+		case "init":
+			if (!isAdmin(message.author.id)) { 
+				message.channel.send(`Sorry, only bot admins can do this`)
+				break;
+			}
+			jobs.init("jobs");
+			break;
+		*/
+	}	
 });
 
 client.login(auth.token);

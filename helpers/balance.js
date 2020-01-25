@@ -32,7 +32,7 @@ module.exports = {
 		if (!fs.existsSync(backupPath)) {
 			fs.mkdirSync(backupPath);
 		}
-		fs.copyFileSync(jsonPath + 'accounts.json', backupPath + 'accounts.json.bk')
+		fs.copyFileSync(jsonPath + 'accounts.json', backupPath + 'accounts.json.bk');
 		console.log('Backed up Accounts!');
 	},
 
@@ -42,7 +42,6 @@ module.exports = {
 	 */
 	updateAccountList: function() {
 		accounts = JSON.parse(fs.readFileSync(jsonPath + 'accounts.json'));
-		return accounts
 	},
 
 	/*
@@ -98,11 +97,9 @@ module.exports = {
 	 * Otherwise, tell the user that it hasn't been twenty four hours since the last daily collection and give nothing.
 	 */
 	dailyTimeCheck: function(message, currency) {
-		if (this.ensureUser(message) == false) { 
-			return; 
-		}
+		if (this.ensureUser(message) == false) { return; }
 		curTime = now.getTime();
-		curDailyTime = Number(accounts[message.author.id].dailyTime);;
+		curDailyTime = Number(accounts[message.author.id].dailyTime);
 		twentyFourTime = 86400000; //24 hours in milliseconds
 		
 		if ((curTime - curDailyTime) < twentyFourTime) {
@@ -133,7 +130,7 @@ module.exports = {
 	newAccount: function(message) {
 		this.updateAccountList();
 		if (accounts[message.author.id]) {
-			message.channel.send("You already have an account.");			
+			message.channel.send("You already have an account.");
 			return;
 		}
 
@@ -156,7 +153,7 @@ module.exports = {
 					dailyTime: dailyTime
 				}
 				write();
-				message.channel.send("<@" + userID + ">, your new account has been created")
+				message.channel.send("<@" + userID + ">, your new account has been created");
 			 });
 		});
 	}
