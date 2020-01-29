@@ -56,7 +56,7 @@ client.on('message', async message => {
 
 	// Bots aren't allowed to execute commands (by default)
 	// Only admins should be able to modify bot allowance
-	if (message.author.bot && !settings.get("iba"))
+	if (message.author.bot)
 		return;
 
 	// Only respond to the prefix with something after the message
