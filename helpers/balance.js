@@ -5,6 +5,7 @@
  */
 
 const fs = require('fs');
+const moment = require('moment');
 
 const jsonPath = "./JSON/";
 const backupPath = "./backups/"
@@ -90,27 +91,23 @@ module.exports = {
 	/*
 	 * Function Flow:
 	 * Make sure the user is in balance.json
-	 * Get the current time (JS returns a ms number from Jan 1st 1970)
-	 * Grab the user's daily time from dailyTime.json
-	 * Find the difference between the user's daily time and twenty four hours from then
-	 * If the current time - the user's daily time >= the twenty four hour time difference, give 100 currency
-	 * Otherwise, tell the user that it hasn't been twenty four hours since the last daily collection and give nothing.
+	 * Check the date the user last recieved the daily reward
+	 * If the date is the same as 
+	 * If the user's daily date is before the current date, return true.
+	 * Otherwise, return false. The embed in econ.js handles the rest
 	 */
-	dailyTimeCheck: function(message, currency) {
+	dailyTimeCheck: function(message) {
 		if (this.ensureUser(message) == false) { return; }
 		curTime = now.getTime();
-		curDailyTime = Number(accounts[message.author.id].dailyTime);
-		twentyFourTime = 86400000; //24 hours in milliseconds
-		
-		if ((curTime - curDailyTime) < twentyFourTime) {
-			out = "It hasn't been twenty four hours! Come back another time."
-		}
-		if ((curTime - curDailyTime) >= twentyFourTime) {
-			this.updateMoney(message, 100);
-			accounts[message.author.id].dailyTime = curTime;
+		if (accounts[message.author.id].dailyTime != moment().format('L')) {
+			accounts[message.author.id].dailyTime = moment().format('L')
 			write();
-			out = "Here's your daily amount of 100" + " " + currency + "!"
+			this.updateMoney(message, 100);
+			out = true;
+		} else {
+			out = false;
 		}
+		
 		return out;
 	},
 
@@ -147,10 +144,9 @@ module.exports = {
 			 const collector = message.createReactionCollector(filter, { time: time });
 
 			 collector.on('collect', (reaction, reactionCollector) => {
-				dailyTime = now.getTime();
 				accounts[userID] = {
 					balance: 1000,
-					dailyTime: dailyTime
+					dailyTime: "Not Collected"
 				}
 				write();
 				message.channel.send("<@" + userID + ">, your new account has been created");

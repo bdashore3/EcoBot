@@ -5,6 +5,7 @@ const balance = require('./helpers/balance.js');
 const jobs = require('./helpers/jobs.js');
 const fs = require('fs')
 const jsonPath = "./JSON/";
+const moment = require('moment');
 
 const selfID = ids.self;
 const quantumID = ids.quantum;
@@ -16,6 +17,7 @@ var isBreak = false;
 var production = true;
 
 const currency = "RegalCoins";
+const dailyValue = 100;
 
 /* 
  * Add your ID in the return statement using an OR operator
@@ -103,9 +105,13 @@ client.on('message', async message => {
 		 * Check balance.js for more information about the internals.
 		 */
 		case "showbal": 
-		case "bal": 
-			if (balance.getCurBalance(message) === undefined) { break; }
-			message.reply(`you have ` + balance.getCurBalance(message) + " " + currency + `.`);
+		case "bal":
+			balEmbed = new Discord.RichEmbed()
+				.setColor('#14F7DF')
+				.setTitle('Account Information')
+				.setDescription('User: ' + message.author.username)
+				.addField('Balance', balance.getCurBalance(message) + " " + currency)
+			message.channel.send(balEmbed);
 			break;
 
 		/*
@@ -113,9 +119,20 @@ client.on('message', async message => {
 		 * Check balance.js for more information about the internals.
 		 */
 		case "daily":
-			balance.dailyTimeCheck(message, currency)
-			if (typeof out === 'undefined') { break; }
-			message.reply(out);
+			balance.dailyTimeCheck(message)
+			if (out == true) {
+				color = '#0BF319'
+				dailyMessage = String(dailyValue) + " " + currency + " added to your account."
+			}
+			if (out == false) {
+				color = '#F33C0B'
+				dailyMessage = "You already collected your reward! You can collect in " + moment().endOf('day').fromNow() + "."
+			}
+			dailyEmbed = new Discord.RichEmbed()
+				.setColor(color)
+				.setTitle('Daily Reward: ' + message.author.username)
+				.setDescription(dailyMessage)
+			message.channel.send(dailyEmbed);
 			break;
 		
 		/*
